@@ -2,16 +2,12 @@ import os
 import arrays
 
 fn main() {
-	f := os.read_file('input.txt') or {
+	f := os.read_file('input_test.txt') or {
 		println('Cannot open input')
 		return
 	}
 
-	mut calories := []int{}
-
-	for elve_calories_contents in f.split("\n\n") {
-		calories << arrays.sum(elve_calories_contents.split("\n").map(it.int()))!
-	}
+	mut calories := f.split("\n\n").map(arrays.sum(it.split("\n").map(it.int()))!)
 
 	calories.sort()
 
