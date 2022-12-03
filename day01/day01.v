@@ -7,10 +7,10 @@ fn main() {
 		return
 	}
 
-	mut calories := f.split("\n\n").map(arrays.sum(it.split("\n").map(it.int()))!)
+	mut calories := f.split('\n\n').map(arrays.sum(it.split('\n').map(it.int()))!)
 
 	calories.sort()
 
-	println("p1: ${calories.last()}")
-	println("p2: ${arrays.sum(calories#[-3..])?}")
+	println('p1: ${calories.last()}')
+	println('p2: ${arrays.sum(calories#[-3..])?}')
 }

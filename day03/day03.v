@@ -27,7 +27,7 @@ fn part1(f string, scoring fn (u8) int) {
 		return comp1.filter(it in comp2)[0]
 	}).map(scoring(it))
 
-	println("p1: ${arrays.sum(results) or {0}}")
+	println('p1: ${arrays.sum(results) or { 0 }}')
 }
 
 fn part2(f string, scoring fn (u8) int) {
@@ -38,5 +38,5 @@ fn part2(f string, scoring fn (u8) int) {
 		return e1.filter(it in e2).filter(it in e3)[0]
 	}).map(scoring(it))
 
-	println("p2: ${arrays.sum(results) or {0}}")
+	println('p2: ${arrays.sum(results) or { 0 }}')
 }
