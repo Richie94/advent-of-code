@@ -1,5 +1,6 @@
 import os
 import time
+import arrays
 
 fn main() {
 	sw := time.new_stopwatch()
@@ -68,6 +69,7 @@ fn main() {
 	}
 
 	mut visible_trees := 0
+	mut scenic_score := 0
 	for x in 0 .. x_len + 1 {
 		for y in 0 .. y_len + 1 {
 			height := tree_dict[x][y]
@@ -82,10 +84,62 @@ fn main() {
 			} else if y > 0 && height > visible_left[x][y - 1] {
 				visible_trees += 1
 			}
+
+			// scenic score go bottom
+			mut bottom_matches := 0
+			for x_n in x .. x_len + 1 {
+				n_height := tree_dict[x_n][y]
+				if n_height < height {
+					bottom_matches += 1
+				} else {
+					break
+				}
+			}
+			// scenic score go up
+			mut top_matches := 0
+			for x_n := x_len; x_n >= 0; x_n -= 1 {
+				n_height := tree_dict[x_n][y]
+				if n_height < height {
+					top_matches += 1
+				} else {
+					break
+				}
+			}
+
+			// scenic score go right
+			mut right_matches := 0
+			for y_n in y .. y_len + 1 {
+				n_height := tree_dict[x][y_n]
+				if n_height < height {
+					right_matches += 1
+				} else {
+					break
+				}
+			}
+
+			// scenic score go left
+			mut left_matches := 0
+			for y_n := y_len; y_n >= 0; y_n -= 1 {
+				n_height := tree_dict[x][y_n]
+				if n_height < height {
+					left_matches += 1
+				} else {
+					break
+				}
+			}
+
+			new_scenic_score := arrays.reduce([left_matches, right_matches, top_matches,
+				bottom_matches].filter(it > 0), fn (x1 int, x2 int) int {
+				return x1 * x2
+			}) or { 0 }
+
+			if new_scenic_score > scenic_score {
+				println("$x $y : $left_matches $right_matches $top_matches $bottom_matches")
+				scenic_score = new_scenic_score
+			}
 		}
 	}
 
-	println("p1 $visible_trees (took ${sw.elapsed().milliseconds()}ms)")
-
-
+	println('p1 ${visible_trees} (took ${sw.elapsed().milliseconds()}ms)')
+	println('p2 ${scenic_score} (took ${sw.elapsed().milliseconds()}ms)')
 }
