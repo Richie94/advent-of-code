@@ -10,21 +10,21 @@ mut:
 }
 
 fn (a Point) to_string() string {
-	return '${a.x}-${a.y}'
+	return '${a.x}:${a.y}'
 }
 
 fn main() {
-	f := os.read_file('input.txt') or {
+	f := os.read_file('input_test.txt') or {
 		println('Cannot open input')
 		return
 	}
 
 	sw1 := time.new_stopwatch()
 	part1(f)
-	println("took ${sw1.elapsed().milliseconds()}ms")
+	println('took ${sw1.elapsed().milliseconds()}ms')
 	sw2 := time.new_stopwatch()
 	part2(f)
-	println("took ${sw2.elapsed().milliseconds()}ms")
+	println('took ${sw2.elapsed().milliseconds()}ms')
 }
 
 fn part1(f string) {
@@ -42,19 +42,12 @@ fn part1(f string) {
 		amount := cmd.split(' ')[1].int()
 
 		for _ in 0 .. amount {
-			if direction == 'R' {
-				head.x += 1
-			} else if direction == 'L' {
-				head.x -= 1
-			} else if direction == 'U' {
-				head.y += 1
-			} else if direction == 'D' {
-				head.y -= 1
-			}
+			updated_head := move_head(head, direction)
+			head.x = updated_head.x
+			head.y = updated_head.y
 
 			point_list << '${tail.x}-${tail.y}'
 			tail = get_next_tail(head, tail)
-			// println("$direction ${head.x}-${head.y} ${tail.x}-${tail.y}")
 		}
 	}
 
@@ -73,45 +66,67 @@ fn part2(f string) {
 		}
 	}
 
-
 	for cmd in f.split('\n') {
-		direction := cmd.split(' ')[0]
-		amount := cmd.split(' ')[1].int()
-
-
-		for _ in 0 .. amount {
-			mut new_knots := []Point{}
-			mut new_head := Point{knots[0].x, knots[0].y}
-			if direction == 'R' {
-				new_head.x += 1
-			} else if direction == 'L' {
-				new_head.x -= 1
-			} else if direction == 'U' {
-				new_head.y += 1
-			} else if direction == 'D' {
-				new_head.y -= 1
-			}
-
-			new_knots << new_head
-
-			for idx in 0 .. 10 {
-				if idx > 0 {
-					tail := get_next_tail(new_knots[idx -1], knots[idx])
-					new_knots << Point { tail.x, tail.y }
-					if idx == 9 {
-						point_list << tail.to_string()
-					}
-				}
-			}
-
-			knots = new_knots.clone()
-		}
-
+		instruction_result := execute_command(cmd, knots)
+		point_list << instruction_result.tail_visits
+		knots = instruction_result.knots.clone()
 	}
 
 	println('p2 ${arrays.group_by(point_list, fn (p string) string {
-    		return p
-    	}).keys().len}')
+		return p
+	}).keys().len}')
+}
+
+fn execute_command(cmd string, knots []Point) InstructionResult {
+	direction := cmd.split(' ')[0]
+	amount := cmd.split(' ')[1].int()
+	mut updated_knots := knots.clone()
+	mut total_tail_visits := []string{}
+
+	for _ in 0 .. amount {
+		instruction_result := execute_instruction(Point{updated_knots[0].x, updated_knots[0].y},
+			direction, updated_knots)
+		total_tail_visits << instruction_result.tail_visits
+		updated_knots = instruction_result.knots.clone()
+	}
+	return InstructionResult{knots, total_tail_visits}
+}
+
+struct InstructionResult {
+	knots       []Point
+	tail_visits []string
+}
+
+fn execute_instruction(head Point, direction string, knots []Point) InstructionResult {
+	mut new_knots := []Point{}
+	mut new_head := move_head(head, direction)
+	mut tail_visits := []string{}
+
+	new_knots << new_head
+
+	for idx in 0 .. knots.len {
+		if idx > 0 {
+			tail := get_next_tail(new_knots[idx - 1], knots[idx])
+			new_knots << Point{tail.x, tail.y}
+			if idx == knots.len - 1 {
+				tail_visits << tail.to_string()
+			}
+		}
+	}
+
+	return InstructionResult{new_knots, tail_visits}
+}
+
+fn move_head(head Point, direction string) Point {
+	if direction == 'R' {
+		return Point{head.x + 1, head.y}
+	} else if direction == 'L' {
+		return Point{head.x - 1, head.y}
+	} else if direction == 'U' {
+		return Point{head.x, head.y + 1}
+	} else {
+		return Point{head.x, head.y - 1}
+	}
 }
 
 fn get_next_tail(head Point, tail Point) Point {
