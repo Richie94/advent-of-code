@@ -1,22 +1,22 @@
 import os { read_file }
 
 fn main() {
-	file_name := "input.txt"
-	println("Part 1: ${part1(file_name) or {0}}")
-	println("Part 2: ${part2(file_name) or {0}}")
+	file_name := 'input.txt'
+	println('Part 1: ${part1(file_name) or { 0 }}')
+	println('Part 2: ${part2(file_name) or { 0 }}')
 }
 
 fn part1(file_name string) !i64 {
-	seq := read_file(file_name)!.split("\n").map(it.i64())
+	seq := read_file(file_name)!.split('\n').map(it.i64())
 	return decrypt(seq, 1, 1)
 }
 
 fn part2(file_name string) !i64 {
-	seq := read_file(file_name)!.split("\n").map(it.i64())
+	seq := read_file(file_name)!.split('\n').map(it.i64())
 	return decrypt(seq, 811589153, 10)
 }
 
-fn decrypt(seq []i64, multiplier int, rounds int ) i64 {
+fn decrypt(seq []i64, multiplier int, rounds int) i64 {
 	// since we have duplicate values have a map from entry-idx to value
 	mut dict := map[int]i64{}
 	mut code := []int{}
